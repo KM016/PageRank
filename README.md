@@ -64,4 +64,4 @@ The algorithm used to compute the ranking scores is inspired by HITS (Hyperlink-
 
 4. **Convergence Check:** The algorithm continues updating the scores until the maximum change between iterations is smaller than a small positive constant $\epsilon$ (e.g., \$\epsilon = 10^{-6}\$) or a maximum number of iterations $M$ (e.g., $M = 100$) is reached.
 
-**Mark: **For this project I achieved a 90/100
+**Mark:** For this project I achieved a 90/100
