@@ -46,8 +46,8 @@ The algorithm will output two ranking scores for each paper:
 
 The algorithm used to compute the ranking scores is inspired by HITS (Hyperlink-Induced Topic Search), a well-known algorithm in information retrieval. The steps of the algorithm are as follows:
 
-1. **Initialization:**  
-   Both the impact and knowledge scores are initialized to 1 for all papers. These scores are stored in vectors $\alpha$ (impact) and $\beta$ (knowledge).
+1. **Initialisation:**  
+   Both the impact and knowledge scores are initialised to 1 for all papers. These scores are stored in vectors $\alpha$ (impact) and $\beta$ (knowledge).
 
 2. **Iterative Updates:** The algorithm iteratively updates the impact and knowledge scores as follows:
 
@@ -59,7 +59,7 @@ The algorithm used to compute the ranking scores is inspired by HITS (Hyperlink-
      The knowledge score of a paper is updated using the impact scores of the papers it cites:
      $\beta_i = \sum_{j=1}^n A_{i,j} \cdot \alpha_j$
 
-3. **Normalization:** After each update, the impact and knowledge score vectors are normalized using the Euclidean norm to prevent unbounded growth:
+3. **Normalisation:** After each update, the impact and knowledge score vectors are normalised using the Euclidean norm to prevent unbounded growth:
    $\alpha \leftarrow \frac{\alpha}{\|\alpha\|}, \quad \beta \leftarrow \frac{\beta}{\|\beta\|}$
 
 4. **Convergence Check:** The algorithm continues updating the scores until the maximum change between iterations is smaller than a small positive constant $\epsilon$ (e.g., \$\epsilon = 10^{-6}\$) or a maximum number of iterations $M$ (e.g., $M = 100$) is reached.
