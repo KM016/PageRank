@@ -47,7 +47,7 @@ The algorithm will output two ranking scores for each paper:
 The algorithm used to compute the ranking scores is inspired by HITS (Hyperlink-Induced Topic Search), a well-known algorithm in information retrieval. The steps of the algorithm are as follows:
 
 1. **Initialization:**  
-   Both the impact and knowledge scores are initialized to 1 for all papers. These scores are stored in vectors \(\alpha\) (impact) and \(\beta\) (knowledge).
+   Both the impact and knowledge scores are initialized to 1 for all papers. These scores are stored in vectors $\alpha$ (impact) and $\beta$ (knowledge).
 
 2. **Iterative Updates:** The algorithm iteratively updates the impact and knowledge scores as follows:
 
