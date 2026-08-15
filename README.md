@@ -1,67 +1,104 @@
-# PageRank
+# Citation Ranking with a HITS-Style Algorithm
 
-Date: 03/2024 <br>
-University Project
+A C++ implementation of an iterative graph-ranking algorithm for a fixed network of seven academic papers.
 
-# The Task
+> University of Bristol Coursework <br>
+> Mark awarded: **90/100** <br>
+> Date: 03/2024 
 
-The objective of this project is to rank academic papers based on their bibliographies, i.e., how often they cite other papers and how often they are cited by others. This ranking is performed using two key scores:
+## Project overview
 
-- **Impact Score:** A measure of how many other papers cite a given paper.
-- **Knowledge Score:** A measure of how many papers the given paper cites.
+The papers and their citations are represented by a directed adjacency matrix $A$, where $A_{ij}=1$ means that paper $i$ cites paper $j$. The program assigns each paper two related scores:
 
-To achieve this, we use an iterative algorithm that computes both the impact and knowledge scores based on citation data, represented as a graph.
+- **Impact score:** higher when the paper is cited by papers with high knowledge scores.
+- **Knowledge score:** higher when the paper cites papers with high impact scores.
 
-## Input
+Although the repository is named `PageRank`, the implemented method is closer to the HITS authority-hub algorithm than to Google's PageRank algorithm. Impact corresponds to an authority-style score and knowledge to a hub-style score.
 
-The input for this project is an adjacency matrix `A`, which represents citations between papers:
+## Input graph
 
-- `A[i, j] = 1` if paper `i` cites paper `j`.
-- `A[i, j] = 0` if paper `i` does not cite paper `j`.
-- Self-citations are not allowed (`A[i, i] = 0`).
-
-For example, the following adjacency matrix represents a set of 7 papers:
+The coursework uses a fixed example containing seven papers. Its adjacency matrix is
 
 $$
 A = \begin{pmatrix}
-0 & 1 & 1 & 0 & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 1 & 1 & 0 \\
-1 & 1 & 1 & 0 & 0 & 1 & 0 \\
-1 & 0 & 1 & 0 & 0 & 0 & 0 \\
-1 & 1 & 1 & 1 & 1 & 1 & 0 \\
-\end{pmatrix}
+0&1&1&0&0&0&0\\
+0&0&1&0&0&0&0\\
+0&0&0&0&0&0&0\\
+0&0&1&0&1&1&0\\
+1&1&1&0&0&1&0\\
+1&0&1&0&0&0&0\\
+1&1&1&1&1&1&0
+\end{pmatrix}.
 $$
 
-## Output
+A row describes the papers cited by one paper; a column describes the papers that cite it. Self-citations are excluded because the diagonal entries are zero.
 
-The algorithm will output two ranking scores for each paper:
+## Algorithm
 
-- **Impact Score:** Reflects how often the paper is cited.
-- **Knowledge Score:** Reflects how often the paper cites others.
+Starting with both score vectors set to one, the program repeatedly applies
 
+$$
+\alpha = A^T\beta,
+\qquad
+\beta = A\alpha,
+$$
 
-# The Algorithm
+where $\alpha$ contains the impact scores and $\beta$ contains the knowledge scores. Both vectors are normalised by their Euclidean norms after each update. Iteration stops when the convergence condition is met or after 100 iterations.
 
-The algorithm used to compute the ranking scores is inspired by HITS (Hyperlink-Induced Topic Search), a well-known algorithm in information retrieval. The steps of the algorithm are as follows:
+The complete procedure is:
 
-1. **Initialisation:**  
-   Both the impact and knowledge scores are initialised to 1 for all papers. These scores are stored in vectors $\alpha$ (impact) and $\beta$ (knowledge).
+1. initialise all impact and knowledge scores to `1`;
+2. update each impact score from the knowledge scores of papers citing it;
+3. update each knowledge score from the impact scores of papers it cites;
+4. normalise both vectors using the Euclidean norm;
+5. compare the new scores with the previous iteration; and
+6. continue until the tolerance of $10^{-6}$ is reached or the iteration cap is hit.
 
-2. **Iterative Updates:** The algorithm iteratively updates the impact and knowledge scores as follows:
+## Program structure
 
-   - **Impact Score Update:**  
-     The impact score of a paper is updated using the knowledge scores of the papers that cite it:
-     $\alpha_i = \sum_{j=1}^n A_{j,i} \cdot \beta_j$
+The source defines two classes:
 
-   - **Knowledge Score Update:**  
-     The knowledge score of a paper is updated using the impact scores of the papers it cites:
-     $\beta_i = \sum_{j=1}^n A_{i,j} \cdot \alpha_j$
+- `matrix` owns the flattened integer matrix, provides row and column dimensions, reads and writes individual elements, prints the matrix and releases the allocated memory.
+- `algorithm` builds the citation example, performs the iterative score updates and prints the final result.
 
-3. **Normalisation:** After each update, the impact and knowledge score vectors are normalised using the Euclidean norm to prevent unbounded growth:
-   $\alpha \leftarrow \frac{\alpha}{\|\alpha\|}, \quad \beta \leftarrow \frac{\beta}{\|\beta\|}$
+`main()` constructs a 7-by-7 matrix, uses its dimensions to initialise the algorithm and then calls `run()`.
 
-4. **Convergence Check:** The algorithm continues updating the scores until the maximum change between iterations is smaller than a small positive constant $\epsilon$ (e.g., \$\epsilon = 10^{-6}\$) or a maximum number of iterations $M$ (e.g., $M = 100$) is reached.
+For the hard-coded seven-paper example, the program identifies:
 
-**Mark:** For this project I achieved a 90/100
+- **Paper 3** as having the highest impact score; and
+- **Paper 7** as having the highest knowledge score.
+
+The complete saved result is:
+
+| Paper | Impact | Knowledge |
+| ---: | ---: | ---: |
+| 1 | 0.39853266 | 0.28485625 |
+| 2 | 0.39853266 | 0.17429382 |
+| 3 | 0.62825841 | 0.00000000 |
+| 4 | 0.17734066 | 0.36891782 |
+| 5 | 0.27968720 | 0.51245081 |
+| 6 | 0.42185326 | 0.28485625 |
+| 7 | 0.00000000 | 0.63924120 |
+
+## Building and running
+
+The project requires a C++11-compatible compiler.
+
+```bash
+g++ -std=c++11 -O2 PageRank.cpp -o pagerank
+./pagerank
+```
+
+The program prints the number of iterations followed by the two scores for each paper.
+
+## Repository contents
+
+```text
+.
+├── PageRank.cpp    # Matrix representation and ranking algorithm
+└── README.md
+```
+
+## Scope and limitations
+
+This is a coursework implementation for one fixed 7-by-7 adjacency matrix, not a general graph-ranking library. The matrix and vector sizes are hard-coded, input is not read from a file, and the convergence logic is implemented manually. The program is best read as a compact demonstration of iterative matrix-based ranking and C++ memory management.
